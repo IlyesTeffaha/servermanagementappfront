@@ -8,12 +8,21 @@ import { CustomResponse } from './interface/custom-response';
 import { Server } from './interface/server';
 import { ServerService } from './service/server.service';
 import { NotifierModule } from 'angular-notifier';
+import { NotificationService } from './service/notification.service';
+import { ChangeDetectionStrategy } from '@angular/compiler';
 
 @Component({
+
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  // changeDetection:ChangeDetectionStrategy.OnPush,
+
+
 })
+
+
+
 export class AppComponent implements OnInit {
 
   appState$: Observable<AppState<CustomResponse>>;
@@ -26,13 +35,14 @@ export class AppComponent implements OnInit {
   isLoading$ = this.isLoading.asObservable();
 
 
-  constructor(private serverService: ServerService) {
+  constructor(private serverService: ServerService, private notifier: NotificationService) {
   }
 
   ngOnInit(): void {
     this.appState$ = this.serverService.servers$
       .pipe(
         map(response => {
+          this.notifier.onDefault(response.message);
           this.dataSubject.next(response);
           return {
 
@@ -42,6 +52,7 @@ export class AppComponent implements OnInit {
         }),
         startWith({ dataState: DataState.LOADING_STATE }),
         catchError((error: string) => {
+          this.notifier.onError(error);
           return of({ dataState: DataState.ERROR_STATE, error })
         })
       );
@@ -54,14 +65,14 @@ export class AppComponent implements OnInit {
         map(response => {
           const index = this.dataSubject.value.data.servers.findIndex(server =>  server.id === response.data.server.id);
           this.dataSubject.value.data.servers[index] = response.data.server;
-          // this.notifier.onDefault(response.message);
+          this.notifier.onDefault(response.message);
           this.filterSubject.next('');
           return { dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }
         }),
         startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
         catchError((error: string) => {
           this.filterSubject.next('');
-          // this.notifier.onError(error);
+          this.notifier.onError(error);
           return of({ dataState: DataState.ERROR_STATE, error });
         })
       );
@@ -71,12 +82,12 @@ export class AppComponent implements OnInit {
     this.appState$ = this.serverService.filter$(status, this.dataSubject.value)
       .pipe(
         map(response => {
-          // this.notifier.onDefault(response.message);
+          this.notifier.onDefault(response.message);
           return { dataState: DataState.LOADED_STATE, appData: response };
         }),
         startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
         catchError((error: string) => {
-          // this.notifier.onError(error);
+          this.notifier.onError(error);
           return of({ dataState: DataState.ERROR_STATE, error });
         })
       );
@@ -97,6 +108,7 @@ export class AppComponent implements OnInit {
         this.dataSubject.next(
           {...response,data:{servers: [response.data.server, ...this.dataSubject.value.data.servers ]} }
         )
+        this.notifier.onDefault(response.message);
           // this.notifier.onDefault(response.message);
 
           //this will close the add form modal after saving the new server in the database and getting the response then continue to run the rest of the code
@@ -116,6 +128,7 @@ export class AppComponent implements OnInit {
         catchError((error: string) => {
           //if we get an error we don't want the spinner to be spining because the whole thing is supposed to be stopping when an error occurs
           this.isLoading.next(false);
+          this.notifier.onError(error);
 
           // this.notifier.onError(error);
           return of({ dataState: DataState.ERROR_STATE, error });
@@ -134,11 +147,12 @@ export class AppComponent implements OnInit {
         this.dataSubject.next(
           {...response,data:{servers:this.dataSubject.value.data.servers.filter(s=>s.id !==server.id)}}
         );
+        this.notifier.onDefault(response.message);
         return {dataState: DataState.LOADED_STATE, appData: this.dataSubject.value}
         }),
         startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
         catchError((error: string) => {
-        
+          this.notifier.onError(error);
           return of({ dataState: DataState.ERROR_STATE, error });
         })
       );
@@ -150,7 +164,7 @@ export class AppComponent implements OnInit {
 
 
   printReport(type: String): void {
-    // this.notifier.onDefault('Report downloaded');
+    this.notifier.onDefault('Report downloaded');
     if(type==="pdf"){
       window.print();
 
