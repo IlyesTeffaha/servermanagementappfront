@@ -42,7 +42,7 @@ this.http.get<CustomResponse>(`${this.apiUrl}/server/list`).pipe(
 );
 
 save$ = (server:Server)=> <Observable<CustomResponse>> 
-this.http.post<CustomResponse>(`${this.apiUrl}/save`,server).pipe(
+this.http.post<CustomResponse>(`${this.apiUrl}/server/save`,server).pipe(
   tap(console.log),
   catchError(this.handleError)
 );
