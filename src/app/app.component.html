@@ -8,7 +8,24 @@
                         <h2>Manage Servers</h2>
                     </div>
                     <div class="col-sm-6">
-                        <button  type="button" class="btn btn-primary">Print Report</button>
+                        <!-- <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Print Report
+                            </button>
+                            <select (ngModelChange)="printReport($event)" ngModel class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                              <option class="dropdown-item" value="pdf">As PDF</option>
+                              <option class="dropdown-item" value="excel">AS Excel Sheet</option>
+                            </select>
+                          </div> -->
+                 
+                        <select (ngModelChange)="printReport($event)" name="print" ngModel=""  
+                        class="btn btn-info" style="height: 32.91px;">
+                        <option   selected value=""  >Print Report</option>
+                        <option value="pdf">As PDF</option>
+                        <option value="excel">AS Excel Sheet</option>
+                    </select>
+                
+                        <!-- <button (click)="printReport()" type="button" class="btn btn-primary">Print Report</button> -->
   
                         <a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal">
                             <i class="material-icons">&#xE147;</i>

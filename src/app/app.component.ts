@@ -7,6 +7,7 @@ import { AppState } from './interface/app-state';
 import { CustomResponse } from './interface/custom-response';
 import { Server } from './interface/server';
 import { ServerService } from './service/server.service';
+import { NotifierModule } from 'angular-notifier';
 
 @Component({
   selector: 'app-root',
@@ -147,14 +148,25 @@ export class AppComponent implements OnInit {
 
 
 
-printReport():void {
 
-  let dataType = 'application/vnd.ms-excel.sheet.macroEnabled.12';
-  let tableSelect = document.getElementById("servers");
-  let tableHtml = tableSelect.outerHTML.replace(/  /g,)
+  printReport(type: String): void {
+    // this.notifier.onDefault('Report downloaded');
+    if(type==="pdf"){
+      window.print();
 
-}
-
+    }else{
+      let dataType = 'application/vnd.ms-excel.sheet.macroEnabled.12';
+      let tableSelect = document.getElementById('servers');
+      let tableHtml = tableSelect.outerHTML.replace(/ /g, '%20');
+      let downloadLink = document.createElement('a');
+      document.body.appendChild(downloadLink);
+      downloadLink.href = 'data:' + dataType + ', ' + tableHtml;
+      downloadLink.download = 'server-report.xlsx';
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+    
+  }
 
 
 
